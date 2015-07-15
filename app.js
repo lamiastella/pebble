@@ -1,7 +1,9 @@
 var UI = require('ui');
 var ajax = require('ajax');
 
-var URL="http://ws.audioscrobbler.com/2.0/?method=user.getTopArtists&user=lamiastella&api_key=3deae23f4eae6c513e88a9c926b2de72&limit=10&format=json&callback=";
+var topArtistsURL="http://ws.audioscrobbler.com/2.0/?method=user.getTopArtists&user=lamiastella&api_key=3deae23f4eae6c513e88a9c926b2de72&limit=10&format=json&callback=";
+var topTracksURL="http://ws.audioscrobbler.com/2.0/?method=user.getTopTracks&user=lamiastella&api_key=3deae23f4eae6c513e88a9c926b2de72&limit=19&format=json&callback="
+var lovedTracksURL="http://ws.audioscrobbler.com/2.0/?method=user.getLovedTracks&user=lamiastella&api_key=3deae23f4eae6c513e88a9c926b2de72&limit=111&format=json&callback=";
 var card = new UI.Card({
     title:'last.fm stat',
     subtitle:'Fetching...'
@@ -10,15 +12,15 @@ var card = new UI.Card({
 var scrobbles = [
   {
     title: "Top Artist",
-    subtitle: "Green and crispy!"
+    subtitle: "Most Listened Artist!"
   },
   {
     title: "Top Song",
-    subtitle: "Peel first!"
+    subtitle: "Most Listened Song!"
   },
   {
-    title: "Last Scrobbled Song",
-    subtitle: "Only three left!"
+    title: "Listen Now",
+    subtitle: "Recommended for You!"
   }
 ];
 
@@ -34,18 +36,10 @@ scrobbleMenu.show();
 
 scrobbleMenu.on('select', function(event) {
 
-  // Show a card with clicked item details
- /* var detailCard = new UI.Card({
-    title: scrobbles[event.itemIndex].title,
-    body: scrobbles[event.itemIndex].subtitle
-  });
-*/
-  // Show the new Card
- // detailCard.show();
-  if (event.itemIndex==0)
+  if (event.itemIndex===0)
     {
   
-  ajax({ url: URL, type: 'json' }, function(data) {
+  ajax({ url: topArtistsURL, type: 'json' }, function(data) {
     var topArtist = data.topartists.artist[0].name;
     var playCount= data.topartists.artist[0].playcount;
     card.subtitle('Top Artist: '+"\n"+ topArtist +"\n"+'Play Count: '+"\n"+ playCount);
@@ -55,20 +49,25 @@ scrobbleMenu.on('select', function(event) {
   else if (event.itemIndex==1)
     {
   
-  ajax({ url: URL, type: 'json' }, function(data) {
-    var topArtist = data.topartists.artist[1].name;
-    var playCount= data.topartists.artist[1].playcount;
-    card.subtitle('Top Artist: '+"\n"+ topArtist +"\n"+'Play Count: '+"\n"+ playCount);
+  ajax({ url: topTracksURL, type: 'json' }, function(data) {
+    var topTrack = data.toptracks.track[0].name;
+    var playCount= data.toptracks.track[0].playcount;
+    card.subtitle('Top Tracks: '+"\n"+ topTrack +"\n"+'Play Count: '+"\n"+ playCount);
     card.show();
 });
     }
+ 
   else if (event.itemIndex==2)
     {
   
-  ajax({ url: URL, type: 'json' }, function(data) {
-    var topArtist = data.topartists.artist[2].name;
-    var playCount= data.topartists.artist[2].playcount;
-    card.subtitle('Top Artist: '+"\n"+ topArtist +"\n"+'Play Count: '+"\n"+ playCount);
+  ajax({ url: lovedTracksURL, type: 'json' }, function(data) {
+    var lovedTracks=[];
+    var i;
+    for (i=0; i<100; i++)
+      lovedTracks.push(data.lovedtracks.track[i].name);
+    var randNum=Math.floor((Math.random() * 100));
+    var listenTo=lovedTracks[randNum];
+    card.subtitle('Listen To: '+"\n"+ listenTo);
     card.show();
 });
     }
